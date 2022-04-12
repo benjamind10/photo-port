@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { validateEmail } from '../../utils/helpers';
 
 const ContactForm = () => {
   const [formState, setFormState] = useState({
@@ -6,11 +7,33 @@ const ContactForm = () => {
     email: '',
     message: '',
   });
-
+  const [errorMessage, setErrorMessage] = useState('');
   const { name, email, message } = formState;
 
   function handleChange(e) {
+    if (e.target.name === 'email') {
+      const isValid = validateEmail(e.target.value);
+      console.log(isValid);
+      // isValid conditional statement
+      if (!isValid) {
+        setErrorMessage('Your email is invalid.');
+      } else {
+        setErrorMessage('');
+      }
+    } else {
+      if (!e.target.value.length) {
+        setErrorMessage(`${e.target.name} is required.`);
+      } else {
+        setErrorMessage('');
+      }
+    }
     setFormState({ ...formState, [e.target.name]: e.target.value });
+    if (!errorMessage) {
+      setFormState({
+        ...formState,
+        [e.target.name]: e.target.value,
+      });
+    }
   }
 
   console.log(formState);
@@ -29,7 +52,7 @@ const ContactForm = () => {
           <input
             type='text'
             defaultValue={name}
-            onChange={handleChange}
+            onBlur={handleChange}
             name='name'
           />
         </div>
@@ -38,7 +61,7 @@ const ContactForm = () => {
           <input
             type='email'
             name='email'
-            onChange={handleChange}
+            onBlur={handleChange}
             defaultValue={email}
           />
         </div>
@@ -47,9 +70,14 @@ const ContactForm = () => {
           <textarea
             name='message'
             defaultValue={message}
-            onChange={handleChange}
+            onBlur={handleChange}
             rows='5'
           />
+          {errorMessage && (
+            <div>
+              <p className='error-text'>{errorMessage}</p>
+            </div>
+          )}
         </div>
         <button type='submit'>Submit</button>
       </form>
